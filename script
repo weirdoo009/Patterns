@@ -1,0 +1,78 @@
+//@version=5
+strategy("Stock Patterns Strategy", overlay=true)
+
+// Function to identify Inside Bar
+insideBar = (high < high[1]) and (low > low[1])
+
+// Function to identify Bullish Engulfing
+bullishEngulfing = (close > open) and (close[1] < open[1]) and (close > open[1]) and (open < close[1])
+
+// Function to identify Bearish Engulfing
+bearishEngulfing = (close < open) and (close[1] > open[1]) and (close < open[1]) and (open > close[1])
+
+// Function to identify Shooting Star
+shootingStar = (high - max(open, close) > 2 * abs(open - close)) and (min(open, close) - low < 0.5 * abs(open - close))
+
+// Function to identify Hammer
+hammer = (max(open, close) - low > 2 * abs(open - close)) and (high - min(open, close) < 0.5 * abs(open - close))
+
+// Function to identify Morning Star
+morningStar = (close[2] < open[2]) and (abs(close[1] - open[1]) < (high[1] - low[1]) * 0.3) and (close > open)
+
+// Function to identify Evening Star
+eveningStar = (close[2] > open[2]) and (abs(close[1] - open[1]) < (high[1] - low[1]) * 0.3) and (close < open)
+
+// Function to identify Doji
+doji = abs(open - close) < (high - low) * 0.1
+
+// Function to identify Piercing Pattern
+piercingPattern = (close < open) and (open[1] < close[1]) and (open > close[1]) and (close > (open + close) / 2)
+
+// Function to identify Dark Cloud Cover
+darkCloudCover = (close > open) and (open[1] > close[1]) and (open > close[1]) and (close < (open + close) / 2)
+
+// Plotting Inside Bar
+plotshape(insideBar, style=shape.labelup, location=location.belowbar, color=color.blue, text="Inside Bar")
+
+// Plotting Bullish Engulfing
+plotshape(bullishEngulfing, style=shape.labelup, location=location.belowbar, color=color.green, text="Bullish Engulfing")
+
+// Plotting Bearish Engulfing
+plotshape(bearishEngulfing, style=shape.labeldown, location=location.abovebar, color=color.red, text="Bearish Engulfing")
+
+// Plotting Shooting Star
+plotshape(shootingStar, style=shape.labeldown, location=location.abovebar, color=color.red, text="Shooting Star")
+
+// Plotting Hammer
+plotshape(hammer, style=shape.labelup, location=location.belowbar, color=color.green, text="Hammer")
+
+// Plotting Morning Star
+plotshape(morningStar, style=shape.labelup, location=location.belowbar, color=color.green, text="Morning Star")
+
+// Plotting Evening Star
+plotshape(eveningStar, style=shape.labeldown, location=location.abovebar, color=color.red, text="Evening Star")
+
+// Plotting Doji
+plotshape(doji, style=shape.labelcross, location=location.abovebar, color=color.gray, text="Doji")
+
+// Plotting Piercing Pattern
+plotshape(piercingPattern, style=shape.labelup, location=location.belowbar, color=color.green, text="Piercing Pattern")
+
+// Plotting Dark Cloud Cover
+plotshape(darkCloudCover, style=shape.labeldown, location=location.abovebar, color=color.red, text="Dark Cloud Cover")
+
+// Strategy rules
+if (bullishEngulfing or hammer or morningStar or piercingPattern)
+    strategy.entry("Bullish Pattern", strategy.long)
+
+if (bearishEngulfing or shootingStar or eveningStar or darkCloudCover)
+    strategy.entry("Bearish Pattern", strategy.short)
+
+// Stop loss and take profit
+longStopLoss = low - (high - low) * 1
+shortStopLoss = high + (high - low) * 1
+longTakeProfit = high + (high - low) * 2
+shortTakeProfit = low - (high - low) * 2
+
+strategy.exit("Take Profit/Stop Loss", "Bullish Pattern", stop=longStopLoss, limit=longTakeProfit)
+strategy.exit("Take Profit/Stop Loss", "Bearish Pattern", stop=shortStopLoss, limit=shortTakeProfit)
